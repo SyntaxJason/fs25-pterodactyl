@@ -31,7 +31,7 @@ whether it is reachable from the internet is decided by the IP of the second
 - Use a loopback, Docker-bridge or private/VPN IP for the web allocation instead of
   the node's public IP. The game allocation stays public.
 - Something internal then has to reach that address. With the BlueNet extension
-  (1.0.45 or newer) set the node setting `fs25_dashboard_proxy` to `true`; the panel
+  (1.0.45 or newer) switch on the proxy for the node under Admin → FS25 nodes; the panel
   serves the dashboard itself, signs in with `WEB_USERNAME`/`WEB_PASSWORD` and the web
   port never needs to be public. See the extension's README.
 - Without BlueNet, use your own reverse proxy or VPN in front of the web allocation.
