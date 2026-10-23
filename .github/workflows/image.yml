@@ -1,4 +1,4 @@
-name: Adapter-Image
+name: Adapter image
 
 on:
   push:
@@ -20,9 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Das Image wird ca. 7,3 GB gross, die Layer belegen waehrend des Builds
-      # mehr. Standard-Runner haben nur wenige GB frei.
-      - name: Speicher freigeben
+      # The image is about 7.3 GB and the layers need more during the build;
+      # standard runners only have a few GB free.
+      - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           docker system prune -af >/dev/null
@@ -47,7 +47,7 @@ jobs:
             type=sha
           labels: |
             org.opencontainers.image.title=FS25 Pterodactyl Adapter
-            org.opencontainers.image.description=Pterodactyl-Adapter für arch-fs25server (Wine/Xvfb, ohne VNC). Enthaelt keine Spieldateien oder Lizenzen.
+            org.opencontainers.image.description=Pterodactyl adapter for arch-fs25server (Wine/Xvfb, no VNC). Contains no game files or licenses.
 
       - uses: docker/build-push-action@v6
         with:
@@ -57,13 +57,13 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      # Beweis, dass Nutzer ohne Anmeldung pullen koennen. Schlaegt fehl, solange
-      # das Paket noch privat ist (Standard bei der ersten Veroeffentlichung).
-      - name: Anonymer Pull-Test
+      # Proves that users can pull without logging in. Fails while the package
+      # is still private (the default on first publication).
+      - name: Anonymous pull test
         if: github.event_name != 'pull_request'
         run: |
           export DOCKER_CONFIG="$(mktemp -d)"
           docker logout ghcr.io || true
           docker manifest inspect "$IMAGE:latest" >/dev/null \
-            || { echo "::error::Paket ist nicht oeffentlich. Sichtbarkeit unter Package settings auf Public stellen."; exit 1; }
-          echo "Anonymer Zugriff OK"
+            || { echo "::error::Package is not public. Set its visibility to Public under Package settings."; exit 1; }
+          echo "Anonymous access OK"

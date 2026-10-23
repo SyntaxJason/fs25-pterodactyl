@@ -1,144 +1,133 @@
-# FS25 für Pterodactyl, ohne VNC
+# FS25 for Pterodactyl, without VNC
 
-Ein eigenes PTDL_v2-Egg und ein Pterodactyl-Adapter für
+A custom PTDL_v2 egg and Pterodactyl adapter image for
 [wine-gameservers/arch-fs25server](https://github.com/wine-gameservers/arch-fs25server).
-Es startet weder VNC/noVNC noch einen Desktop oder Browser. Wine verwendet
-Xvfb mit einem unsichtbaren Display. Die Online-Aktivierung erfolgt beim
-ersten Start ueber den GIANTS-Dialog mit xdotool.
-Das Adapter-Image aktualisiert das im Basisimage vorhandene Wine Staging 10.1
-auf Wine 11.0 und ergaenzt passende Lavapipe-/LLVM-Bibliotheken.
+It starts no VNC/noVNC, desktop or browser. Wine runs on an invisible Xvfb
+display, and the online activation is done through the GIANTS dialog with xdotool.
+The adapter image upgrades the Wine Staging 10.1 from the base image to
+Wine 11.0 and adds matching Lavapipe/LLVM libraries.
 
-## Lokal eingerichtet
+## Quick start
 
-- Projekt: `/run/media/syntaxjason/Code/Biz/Pterodactyl/fs25-egg`
-- Image: `fs25-pterodactyl:local`
-- Egg-ID: `16`
-- Server: **FS25 Headless Test**, ID `23`, Kennung `3b0360d9`
-- [Konsole](http://localhost:8091/server/3b0360d9)
-- [Startup](http://localhost:8091/server/3b0360d9/startup)
-- Spielport: `10825` TCP/UDP; Webport: `7999` TCP
-- RAM: 8192 MiB, Disk: 102400 MiB, CPU: 400 %, Swap: 0
+1. Import `egg-farming-simulator-25.json` in the panel under Admin → Eggs.
+2. Create a server with two allocations: the primary one is the game port
+   (TCP and UDP, default 10825), the second one is `WEB_PORT` (TCP, default 7999).
+3. Under Startup, set `WEB_PASSWORD` and `SERVER_ADMIN` (8–16 characters; GIANTS
+   allows at most 16). Optionally set `FS25_PRODUCT_KEY`.
+4. Start the server. Download, extraction, silent installation and first
+   activation take a while on the first start; later starts reuse the files.
 
-Beide Allocations sind als `127.0.0.1` angelegt. Dein Wings bildet Loopback
-beim Docker-Binding auf seine Bridge `172.31.250.1` ab. Das GIANTS-Webinterface
-ist nach erfolgreichem Start daher lokal unter
-[http://172.31.250.1:7999](http://172.31.250.1:7999) erreichbar.
-Die Spiel-Allocation für einen extern erreichbaren Server entsprechend aendern.
+The egg uses the public image `ghcr.io/syntaxjason/fs25-pterodactyl:latest`
+(linux/amd64, about 7.3 GB unpacked). Wings pulls it on the first start; users
+do not need to build anything or run `install-wings.sh`. The image contains no
+game files and no licenses.
 
-## Jetzt eintragen
+## Product key
 
-1. Auf der Startup-Seite `FS25_PRODUCT_KEY` setzen oder leer lassen.
-   Mit der lokalen BlueNet-Erweiterung ab Version 1.0.44 erscheint ohne Key beim
-   Start auf den Serverseiten ein **Popup** für deinen separaten GIANTS-Server-Key.
-   Der Key wird dort maskiert eingegeben und als Startup-Variable gespeichert;
-   der wartende Prozess startet anschliessend neu. Abbrechen, Schliessen oder
-   ein leeres Feld stoppen den Server. Ohne Eingabe bleibt der 60-Sekunden-Timeout
-   des Containers aktiv. Der Key wird dabei nicht als Konsolenbefehl gesendet.
-   Ohne BlueNet bleibt die Konsolenabfrage als Alternative erhalten. Du hast 60 Sekunden Zeit. Keine Antwort, leere Eingabe,
-   `abbrechen` oder geschlossenes stdin stoppen den Server sauber (Exitcode 0),
-   bevor Wine oder ein Download startet. Die Panel-Konsole sendet keine leeren
-   Befehle; dort `abbrechen` verwenden oder den Timeout abwarten.
-   Eine Konsoleneingabe gilt nur für diesen Start; dauerhaft den Key in Startup
-   setzen. Das Terminal-Echo ist waehrend der Abfrage deaktiviert; die Panel-
-   Befehlshistorie speichert gesendete Befehle trotzdem im Browser. Für den
-   dauerhaften Key daher das Startup-Feld verwenden.
-   Auf dem lokalen Testserver ist dein echter Key bereits hinterlegt.
-2. `AUTO_DOWNLOAD=true` ist lokal aktiviert. Alternativ den GIANTS-Installer nach `installer/`
-   hochladen und `AUTO_DOWNLOAD=false` beibehalten. IMG/ZIP oder `Setup.exe` mit
-   allen zugehoerigen BIN-Dateien werden unterstuetzt.
-3. `WEB_PASSWORD` und `SERVER_ADMIN` sind für den lokalen Test zufaellig erzeugt
-   worden; unter Startup nachsehen oder eigene setzen. Das Spiel-Adminpasswort
-   darf bei GIANTS maximal 16 Zeichen haben.
-4. Starten. Download, Extraktion, Silent-Installation und Erstaktivierung brauchen
-   beim ersten Start entsprechend Zeit. Spaetere Starts verwenden die vorhandenen Dateien.
+Set `FS25_PRODUCT_KEY` under Startup, or leave it empty. You need a separate
+GIANTS dedicated server key.
 
-Der automatische Download meldet deinen Key beim offiziellen GIANTS-Portal an
-und sendet das Windows-IMG-Downloadformular ab. Auch die frueheren direkten
-CDN-Links werden unterstuetzt. Ein abgelaufener Link oder eine geaenderte
-Portalseite laesst sich durch einen manuellen Upload umgehen. Es werden keine
-Spieldateien mitgeliefert. Die Steam-Installation des lokalen PCs wird nicht verwendet.
+- With the BlueNet extension (1.0.44 or newer), a popup asks for the key when the
+  server starts without one. The key is entered masked and stored as a startup
+  variable, then the waiting process restarts. Cancelling, closing the popup or
+  an empty field stops the server. The popup is a BlueNet feature, not a generic
+  feature of the egg.
+- Without BlueNet, the container asks in the console. You have 60 seconds. No
+  answer, an empty line, `abbrechen`/`cancel`/`stop` or a closed stdin stop the
+  server cleanly (exit code 0) before Wine or a download starts. The panel
+  console does not send empty commands; use `abbrechen` there or wait for the
+  timeout. A console entry only applies to that start; set the key under Startup
+  to keep it. Terminal echo is disabled during the prompt, but the panel command
+  history may still store sent commands in the browser.
 
-Pterodactyl speichert Startup-Variablen im Klartext in seiner Datenbank und gibt
-sie als Container-Umgebung weiter. Serverbesitzer und Administratoren koennen
-sie sehen. Der Adapter schreibt den Key nicht in den Startbefehl oder eigene
-Konsolenmeldungen und reicht ihn an xdotool ueber stdin statt argv weiter.
+Pterodactyl stores startup variables in plain text in its database and passes
+them on as container environment; server owners and administrators can see them.
+The adapter does not write the key into the start command or its own console
+messages and passes it to xdotool via stdin instead of argv.
 
-## Ablauf und Persistenz
+To make an intentional stop stay stopped, Wings must respect clean exits. Set
+`system.crash_detection.detect_clean_exit_as_crash: false` in the node's
+`config.yml` (normal crash detection stays on with `enabled: true`). This
+option applies to the whole node; see the
+[Wings configuration](https://docs.pterodactyl.io/v2/wings/configuration#crash-detection).
 
-- `.wine/`: Wine-Profil und Registry; wird nicht bei jedem Start geloescht.
-- `game/Farming Simulator 2025/`: installierte Spieldateien.
-- `config/FarmingSimulator2025/`: Lizenzdateien, Mods, Savegames und GIANTS-Konfiguration.
-- `installer/`: hochgeladene/heruntergeladene Installationsmedien, bleiben erhalten.
-- `logs/`: Installations-, Display-, Aktivierungs- und Prozesslogs.
+## Game download
 
-Die beiden XML-Konfigurationen werden mit einem XML-Parser aktualisiert.
-Unbekannte Einstellungen, Mod-Auswahl und die Karte einer vorhandenen Welt
-bleiben erhalten. Startup-Variablen für Name, Port, Passwoerter und Slot gelten
-bei jedem Start. Kartenwechsel einer bestehenden Konfiguration im GIANTS-Portal
-vornehmen; für einen anderen vorhandenen Slot `SAVEGAME_INDEX` setzen.
-Die Web-Zugangsdaten stehen im GIANTS-Block `initial_admin` und initialisieren
-den ersten Web-Benutzer. Einen bereits angelegten Web-Benutzer spaeter im
-GIANTS-Portal aendern und die Egg-Variablen entsprechend nachziehen.
+`AUTO_DOWNLOAD=true` registers your key at the official GIANTS portal and submits
+the Windows IMG download form. The earlier direct CDN links are also supported.
+An expired link or a changed portal page can be worked around by uploading the
+installer manually: put the IMG/ZIP, or `Setup.exe` with all its BIN files, into
+`installer/` and set `AUTO_DOWNLOAD=false`. No game files are shipped, and the
+Steam installation of your PC is not used.
 
-Das Spiel wird durch `dedicatedServer.exe` und einen authentifizierten HTTP-POST
-auf das GIANTS-Webinterface gestartet. Erst eine neue Gameplay-Meldung in den
-Spiel-Logs erzeugt `FS25_READY:` und damit den Pterodactyl-Status „Running“.
-Die Serverlogs inklusive der datierten `log_*.txt`-Engine-Logs werden
-fortlaufend in die Konsole uebertragen. Eine fruehe Meldung „Started network game“
-zaehlt noch nicht als abgeschlossener Kartenstart.
+## Layout and persistence
 
-Ein normaler Stop (`SIGINT`/`SIGTERM`) fordert beim GIANTS-Portal das Stoppen
-der Spielsession an und wartet bis zu 45 Sekunden, bevor Wine beendet wird.
-Dem Container mindestens 60 Sekunden Stop-Frist geben.
-Damit der Abbruch ohne License Key dauerhaft gestoppt bleibt, muss Wings saubere
-Exits respektieren. Auf dem lokalen Node ist in `config.yml`
-`system.crash_detection.detect_clean_exit_as_crash: false` gesetzt. Die normale
-Crash-Erkennung (`enabled: true`) bleibt aktiv. Diese Option gilt für den ganzen
-Node und muss auf weiteren Nodes ebenfalls passend gesetzt werden; siehe
-[Wings-Konfiguration](https://docs.pterodactyl.io/v2/wings/configuration#crash-detection).
-Dieser Stop fordert keinen zusaetzlichen manuellen Weltspeichervorgang an.
-Für Spielfortschritt gelten die GIANTS-Autosaves und manuelles Speichern im Spiel.
-`SERVER_SAVE_INTERVAL` wird in **Minuten** gemessen; der Standard ist **3 Minuten**.
+- `.wine/`: Wine prefix and registry; not deleted on each start.
+- `game/Farming Simulator 2025/`: installed game files.
+- `config/FarmingSimulator2025/`: license files, mods, savegames and GIANTS configuration.
+- `installer/`: uploaded/downloaded installation media; kept.
+- `logs/`: installation, display, activation and process logs.
 
-## Auf einem anderen Wings-Host
+Both XML configurations are updated with an XML parser. Unknown settings, the
+mod selection and the map of an existing world are preserved. Startup variables
+for name, port, passwords and slot apply on every start. Change the map of an
+existing configuration in the GIANTS portal; use `SAVEGAME_INDEX` for another
+existing slot. The web credentials are written to the GIANTS `initial_admin`
+block and initialise the first web user. Change an already created web user in
+the GIANTS portal and update the egg variables accordingly.
 
-Das Egg verwendet das oeffentliche Image `ghcr.io/syntaxjason/fs25-pterodactyl:latest`
-(Linux/amd64, ca. 7,3 GB entpackt). Wings zieht es beim ersten Start selbst;
-weder Bauen noch `install-wings.sh` sind noetig. Das Image enthaelt weder
-Spieldateien noch Lizenzen. Gebaut wird es per GitHub Actions
-(`.github/workflows/image.yml`); der Workflow prueft nach jedem Push, dass das
-Image ohne Anmeldung gezogen werden kann.
+The game is started by `dedicatedServer.exe` and an authenticated HTTP POST to
+the GIANTS web interface. Only a new gameplay message in the game logs produces
+`FS25_READY:` and thereby the Pterodactyl status "Running"; an early
+"Started network game" does not count as a finished map start. The server logs,
+including the dated `log_*.txt` engine logs, are streamed to the console.
 
-`install-wings.sh` und `docker build -t fs25-pterodactyl:local .` bleiben nur
-für lokale Entwicklung. Egg neu erzeugen: `python3 build-egg.py`, dann
-`egg-farming-simulator-25.json` unter Admin → Eggs importieren.
-Pro Server eine primaere Spiel-Allocation und eine zweite Web-Allocation
-zuweisen; `WEB_PORT` muss auf die zweite Allocation passen.
+A normal stop (`SIGINT`/`SIGTERM`) asks the GIANTS portal to stop the game
+session and waits up to 45 seconds before Wine is terminated, so give the
+container at least 60 seconds of stop timeout. The stop does not request an
+additional manual world save; progress relies on GIANTS autosaves and manual
+saving in the game. `SERVER_SAVE_INTERVAL` is measured in **minutes**
+(default **3**).
 
-Pterodactyl 2 akzeptiert das PTDL_v2-Format; siehe
-[Egg-Dokumentation](https://docs.pterodactyl.io/v2/guides/egg-creation/creating-custom-egg).
-Die primaere Spielport-Variable `SERVER_PORT` kommt von Wings und ist nicht
-als manuell editierbares Egg-Feld angelegt.
+## Image and CI
 
-## Grenzen und Teststand
+The image is built by GitHub Actions (`.github/workflows/image.yml`) and
+published to GHCR. After each push the workflow checks that the image can be
+pulled without logging in. GHCR packages are private on first publication; make
+the package public once under Package settings.
 
-Mit **FS25 1.25.0.0** lokal verifiziert: echter GIANTS-Download,
-Extraktion, Silent-Installation, automatische Online-Aktivierung, Spielstart bis
-„Entered Gameplay“, Stop ueber GIANTS und Neustart mit vorhandener Aktivierung.
-Die Aktivierungsautomatik orientiert sich am ESD-Launcher mit 1280×720-Display
-und unterstuetzt dessen Titel mit Buildnummer. Andere GIANTS-Dialoglayouts koennen
-Anpassungen brauchen. Ein Timeout wird als Fehler gemeldet.
-Eine Client-Verbindung und Speichern/Wiederherstellen echten Spielfortschritts
-sind noch nicht getestet.
+To build locally for development and regenerate the egg:
 
-Automatische DLC-Installation und automatische Spielupdates sind nicht enthalten.
-Installer werden nicht automatisch geloescht. Je nach Mediengroesse kann für
-Download, Extraktion und fertiges Spiel mehr als die empfohlenen 100 GiB noetig sein.
+```bash
+docker build -t fs25-pterodactyl:local .
+python3 build-egg.py
+```
 
-## Referenzen
+`install-wings.sh` builds and checks `fs25-pterodactyl:local` on a Wings host and
+is only needed for local development.
 
-- [Arch-FS25-Container und dessen Silent-Setup](https://github.com/wine-gameservers/arch-fs25server)
-- [Bestehendes Headless-Egg als Referenz für den Aktivierungsdialog und Portal-Ablauf](https://github.com/nn-home-com/farming-simulator-25-egg)
+The egg uses the PTDL_v2 format; see the
+[egg documentation](https://docs.pterodactyl.io/v2/guides/egg-creation/creating-custom-egg).
+The primary game port variable `SERVER_PORT` is provided by Wings and is not an
+editable egg field.
 
-Die Adapter-Skripte in diesem Verzeichnis wurden für dieses Setup neu geschrieben.
-Die veroeffentlichten Testaussagen des Referenzprojekts sind keine Tests dieses Adapters.
+## Limits
+
+Verified locally with **FS25 1.25.0.0**: real GIANTS download, extraction, silent
+installation, automatic online activation, game start up to "Entered Gameplay",
+stop through GIANTS and restart with the existing activation. The activation
+automation follows the ESD launcher with a 1280×720 display and supports its
+title with build number; other GIANTS dialog layouts may need adjustments. A
+timeout is reported as an error. Not tested: a connection with a real FS25 client,
+and saving/restoring real client progress.
+
+Automatic DLC installation and automatic game updates are not included.
+Installers are not deleted automatically. Depending on the media size, more than
+the recommended 100 GiB may be needed for download, extraction and the installed game.
+
+## References
+
+- [Arch FS25 container and its silent setup](https://github.com/wine-gameservers/arch-fs25server)
+- [Existing headless egg, used as a reference for the activation dialog and portal flow](https://github.com/nn-home-com/farming-simulator-25-egg)
+
+The adapter scripts in this repository were written anew for this setup.

@@ -31,9 +31,9 @@ RUN curl -fsSL https://archive.archlinux.org/packages/7/7zip/7zip-25.01-1-x86_64
  && rm /tmp/7zip.pkg.tar.zst \
  && for program in wine wineserver wineboot Xvfb xdotool 7z python; do command -v "$program"; done
 RUN useradd --uid 988 --gid 988 --home-dir /home/container --create-home --shell /bin/bash container
-# Wings startet den Container mit der UID/GID des Hosts (z. B. 999) und
-# schreibgeschütztem Root-Dateisystem. Wine und Python brauchen dafür einen
-# passwd-/group-Eintrag, daher alle freien IDs vorab als "container" anlegen.
+# Wings starts the container with the host's UID/GID (e.g. 999) and a read-only
+# root filesystem. Wine and Python need a passwd/group entry for it, so every
+# free ID is pre-created as "container".
 RUN awk -F: '{u[$3]=1} END{for(i=100;i<=65535;i++) if(!(i in u)) print "container:x:" i ":" i ":container:/home/container:/bin/bash"}' /etc/passwd > /tmp/passwd.add \
  && awk -F: '{g[$3]=1} END{for(i=100;i<=65535;i++) if(!(i in g)) print "container:x:" i ":"}' /etc/group > /tmp/group.add \
  && cat /tmp/passwd.add >> /etc/passwd && cat /tmp/group.add >> /etc/group && rm /tmp/passwd.add /tmp/group.add \

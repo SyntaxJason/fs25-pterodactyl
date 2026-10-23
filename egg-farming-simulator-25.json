@@ -1,13 +1,13 @@
 {
-    "_comment": "Custom FS25 egg. Image wird oeffentlich von GHCR gezogen (https://github.com/SyntaxJason/fs25-pterodactyl).",
+    "_comment": "Custom FS25 egg. The image is pulled publicly from GHCR (https://github.com/SyntaxJason/fs25-pterodactyl).",
     "meta": {
         "version": "PTDL_v2",
         "update_url": null
     },
     "exported_at": "2026-10-23T00:00:00+02:00",
-    "name": "Farming Simulator 25 (Wine, ohne VNC)",
+    "name": "Farming Simulator 25 (Wine, no VNC)",
     "author": "eggs@bluenet-hosting.com",
-    "description": "FS25 auf Wine mit automatischem GIANTS-Download, Silent-Installation und Dialog-Aktivierung ohne VNC. Separate GIANTS-Lizenz erforderlich. 8 GB RAM und 100 GB Disk empfohlen. Primaere Allocation = Spielport, zweite Allocation = WEB_PORT/TCP. Erstaktivierung versionsabhaengig.",
+    "description": "FS25 on Wine with automatic GIANTS download, silent installation and dialog-based activation, without VNC. A separate GIANTS license is required. 8 GB RAM and 100 GB disk recommended. Primary allocation = game port, second allocation = WEB_PORT/TCP. First activation depends on the installer version.",
     "features": [
         "pid_limit"
     ],
@@ -24,7 +24,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "#!/bin/ash\nset -eu\nmkdir -p /mnt/server/installer /mnt/server/game /mnt/server/config /mnt/server/logs\ncat > /mnt/server/FS25-README.txt <<'EOF'\nFarming Simulator 25 / Pterodactyl / ohne VNC\n\n1. Startup: WEB_PASSWORD und SERVER_ADMIN setzen. FS25_PRODUCT_KEY optional vorab setzen.\n   Ohne Key folgt beim Start ein BlueNet-Popup (alternativ Konsole, 60 Sekunden); ohne Eingabe stoppt der Server.\n2. Zweite Allocation für WEB_PORT (Standard 7999/TCP) zuweisen.\n   Die primaere Allocation ist der Spielport (TCP und UDP).\n3. Starten: Download, Silent-Installation und Aktivierung erfolgen beim ersten Start.\n   Alternativ GIANTS IMG/ZIP oder Setup.exe plus BIN-Dateien nach installer/ hochladen.\n   Für den manuellen Weg AUTO_DOWNLOAD=false setzen.\n\ngame/   Spielinstallation\nconfig/FarmingSimulator2025/   Lizenzdateien, Mods, Savegames, GIANTS-Konfiguration\n.wine/  persistentes Wine-Profil (bei Neuinstallation nicht loeschen)\nlogs/   technische Installations- und Prozesslogs\n\nKein VNC/noVNC-Port erforderlich. Der Container nutzt nur ein unsichtbares Xvfb-Display.\nDie Erstaktivierung haengt vom GIANTS-Dialoglayout ab und muss mit deiner Version getestet werden.\nDas Image enthaelt keine Spieldateien. Separate GIANTS-Serverlizenz erforderlich.\nEOF\necho 'FS25-Verzeichnisse vorbereitet. Passwoerter unter Startup setzen. Key dort setzen oder beim Start in der Konsole eingeben.'\n",
+            "script": "#!/bin/ash\nset -eu\nmkdir -p /mnt/server/installer /mnt/server/game /mnt/server/config /mnt/server/logs\ncat > /mnt/server/FS25-README.txt <<'EOF'\nFarming Simulator 25 / Pterodactyl / no VNC\n\n1. Startup: set WEB_PASSWORD and SERVER_ADMIN. Optionally set FS25_PRODUCT_KEY in advance.\n   Without a key, the start asks for it (BlueNet popup, or the console for 60 seconds);\n   without input the server stops.\n2. Assign a second allocation for WEB_PORT (default 7999/TCP).\n   The primary allocation is the game port (TCP and UDP).\n3. Start: download, silent installation and activation happen on the first start.\n   Alternatively upload the GIANTS IMG/ZIP or Setup.exe plus BIN files to installer/\n   and set AUTO_DOWNLOAD=false.\n\ngame/   game installation\nconfig/FarmingSimulator2025/   license files, mods, savegames, GIANTS configuration\n.wine/  persistent Wine prefix (do not delete on reinstall)\nlogs/   technical installation and process logs\n\nNo VNC/noVNC port is required. The container only uses an invisible Xvfb display.\nFirst activation depends on the GIANTS dialog layout and must be tested with your version.\nThe image contains no game files. A separate GIANTS server license is required.\nEOF\necho 'FS25 directories prepared. Set the passwords under Startup. Set the key there or enter it in the console on start.'\n",
             "container": "ghcr.io/pterodactyl/installers:alpine",
             "entrypoint": "ash"
         }
@@ -32,7 +32,7 @@
     "variables": [
         {
             "name": "GIANTS FS25 Product Key",
-            "description": "Separate GIANTS-Version für den Dedicated Server. Leer: BlueNet fragt beim Start per Popup nach dem Key (alternativ Konsole). Nach 60 Sekunden ohne Eingabe wird gestoppt. Wird für Download und Online-Aktivierung verwendet. Nicht in den Startbefehl schreiben. Pterodactyl speichert Startup-Variablen im Klartext; für Serverbesitzer und Administratoren sichtbar.",
+            "description": "Separate GIANTS dedicated server license key. If empty, the server asks for it on start (BlueNet popup, or the console as a fallback) and stops after 60 seconds without input. Used for the download and the online activation. Pterodactyl stores startup variables in plain text; server owners and administrators can see them.",
             "env_variable": "FS25_PRODUCT_KEY",
             "default_value": "",
             "user_viewable": true,
@@ -41,8 +41,8 @@
             "field_type": "text"
         },
         {
-            "name": "Automatischer GIANTS-Download",
-            "description": "Laedt beim ersten Start den offiziellen Installer mit deinem Key. Alternativ IMG/ZIP oder Setup.exe mit allen BIN-Dateien nach installer/ hochladen.",
+            "name": "Automatic GIANTS download",
+            "description": "Downloads the official installer with your key on first start. Alternatively upload the IMG/ZIP or Setup.exe with all BIN files to installer/.",
             "env_variable": "AUTO_DOWNLOAD",
             "default_value": "true",
             "user_viewable": true,
@@ -51,8 +51,8 @@
             "field_type": "text"
         },
         {
-            "name": "Installer Download URL (optional)",
-            "description": "Optionaler HTTPS-Link zum GIANTS-Installer statt Portal-Erkennung. Nur verwenden, wenn kein Installer hochgeladen wurde. Links koennen ablaufen.",
+            "name": "Installer download URL (optional)",
+            "description": "Optional HTTPS link to the GIANTS installer instead of the portal lookup. Only use it if no installer was uploaded. Links can expire.",
             "env_variable": "FS25_DOWNLOAD_URL",
             "default_value": "",
             "user_viewable": true,
@@ -61,8 +61,8 @@
             "field_type": "text"
         },
         {
-            "name": "Servername",
-            "description": "Name im FS25 Serverbrowser.",
+            "name": "Server name",
+            "description": "Name shown in the FS25 server browser.",
             "env_variable": "SERVER_NAME",
             "default_value": "FS25 Server",
             "user_viewable": true,
@@ -71,8 +71,8 @@
             "field_type": "text"
         },
         {
-            "name": "Web-Port",
-            "description": "Zweite Allocation für das GIANTS-Webinterface (TCP). Muss diesem Server zugewiesen sein und sich vom primaeren Spielport unterscheiden. HTTP; für oeffentlichen Betrieb TLS-Reverse-Proxy verwenden.",
+            "name": "Web port",
+            "description": "Second allocation for the GIANTS web interface (TCP). It must be assigned to this server and differ from the primary game port. Plain HTTP; use a TLS reverse proxy for public access.",
             "env_variable": "WEB_PORT",
             "default_value": "7999",
             "user_viewable": true,
@@ -81,8 +81,8 @@
             "field_type": "text"
         },
         {
-            "name": "Web-Benutzer",
-            "description": "Login für das GIANTS-Webinterface.",
+            "name": "Web user",
+            "description": "Login for the GIANTS web interface.",
             "env_variable": "WEB_USERNAME",
             "default_value": "admin",
             "user_viewable": true,
@@ -91,8 +91,8 @@
             "field_type": "text"
         },
         {
-            "name": "Web-Passwort",
-            "description": "Pflichtfeld: Passwort für das GIANTS-Webinterface.",
+            "name": "Web password",
+            "description": "Required: password for the GIANTS web interface.",
             "env_variable": "WEB_PASSWORD",
             "default_value": "",
             "user_viewable": true,
@@ -101,8 +101,8 @@
             "field_type": "text"
         },
         {
-            "name": "Spiel-Adminpasswort",
-            "description": "Pflichtfeld: Administratorpasswort im Spiel. GIANTS erlaubt maximal 16 Zeichen.",
+            "name": "Game admin password",
+            "description": "Required: in-game administrator password. GIANTS allows at most 16 characters.",
             "env_variable": "SERVER_ADMIN",
             "default_value": "",
             "user_viewable": true,
@@ -111,8 +111,8 @@
             "field_type": "text"
         },
         {
-            "name": "Spiel-Passwort",
-            "description": "Optionales Passwort zum Beitreten, maximal 16 Zeichen.",
+            "name": "Game password",
+            "description": "Optional password to join, at most 16 characters.",
             "env_variable": "SERVER_PASSWORD",
             "default_value": "",
             "user_viewable": true,
@@ -121,8 +121,8 @@
             "field_type": "text"
         },
         {
-            "name": "Spielerzahl",
-            "description": "Maximale Spielerzahl.",
+            "name": "Player slots",
+            "description": "Maximum number of players.",
             "env_variable": "SERVER_PLAYERS",
             "default_value": "16",
             "user_viewable": true,
@@ -131,8 +131,8 @@
             "field_type": "text"
         },
         {
-            "name": "Sprache",
-            "description": "Sprache des Servers, z.B. de oder en.",
+            "name": "Language",
+            "description": "Server language, e.g. de or en.",
             "env_variable": "SERVER_REGION",
             "default_value": "de",
             "user_viewable": true,
@@ -141,8 +141,8 @@
             "field_type": "text"
         },
         {
-            "name": "Startkarte",
-            "description": "Nur für neue Konfiguration: MapUS, MapAS oder MapEU. Existierende Welt ueber GIANTS verwalten.",
+            "name": "Start map",
+            "description": "Only for a new configuration: MapUS, MapAS or MapEU. Manage an existing world through the GIANTS portal.",
             "env_variable": "SERVER_MAP",
             "default_value": "MapUS",
             "user_viewable": true,
@@ -151,8 +151,8 @@
             "field_type": "text"
         },
         {
-            "name": "Savegame-Slot",
-            "description": "Zu startender Savegame-Slot.",
+            "name": "Savegame slot",
+            "description": "Savegame slot to start.",
             "env_variable": "SAVEGAME_INDEX",
             "default_value": "1",
             "user_viewable": true,
@@ -161,7 +161,7 @@
             "field_type": "text"
         },
         {
-            "name": "Leeren Server pausieren",
+            "name": "Pause empty server",
             "description": "GIANTS pause_game_if_empty (Standard: 2).",
             "env_variable": "SERVER_PAUSE",
             "default_value": "2",
@@ -171,8 +171,8 @@
             "field_type": "text"
         },
         {
-            "name": "Autosave-Intervall",
-            "description": "Speicherintervall in Minuten. GIANTS verwendet hier Minuten, nicht Sekunden. Standard: 3 Minuten.",
+            "name": "Autosave interval",
+            "description": "Save interval in minutes (GIANTS uses minutes here, not seconds). Default: 3 minutes.",
             "env_variable": "SERVER_SAVE_INTERVAL",
             "default_value": "3",
             "user_viewable": true,
@@ -181,8 +181,8 @@
             "field_type": "text"
         },
         {
-            "name": "Statistik-Intervall",
-            "description": "Statistikintervall in Sekunden.",
+            "name": "Statistics interval",
+            "description": "Statistics interval in seconds.",
             "env_variable": "SERVER_STATS_INTERVAL",
             "default_value": "360",
             "user_viewable": true,
@@ -192,7 +192,7 @@
         },
         {
             "name": "Crossplay",
-            "description": "Crossplay zulassen.",
+            "description": "Allow crossplay.",
             "env_variable": "SERVER_CROSSPLAY",
             "default_value": "true",
             "user_viewable": true,
@@ -201,8 +201,8 @@
             "field_type": "text"
         },
         {
-            "name": "Aktivierungs-Timeout",
-            "description": "Maximale Wartezeit auf die GIANTS-Lizenzaktivierung in Sekunden.",
+            "name": "Activation timeout",
+            "description": "Maximum time to wait for the GIANTS license activation, in seconds.",
             "env_variable": "ACTIVATION_TIMEOUT",
             "default_value": "180",
             "user_viewable": true,
@@ -211,8 +211,8 @@
             "field_type": "text"
         },
         {
-            "name": "Start-Timeout",
-            "description": "Maximale Wartezeit auf Gameplay; bei grossen Mod-Welten erhoehen.",
+            "name": "Start timeout",
+            "description": "Maximum time to wait for gameplay; increase for large mod setups.",
             "env_variable": "START_TIMEOUT",
             "default_value": "300",
             "user_viewable": true,
