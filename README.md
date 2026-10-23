@@ -22,6 +22,21 @@ The egg uses the public image `ghcr.io/syntaxjason/fs25-pterodactyl:latest`
 do not need to build anything or run `install-wings.sh`. The image contains no
 game files and no licenses.
 
+## Keeping the web port private
+
+The GIANTS web interface always listens on all interfaces inside the container, so
+whether it is reachable from the internet is decided by the IP of the second
+(`WEB_PORT`) allocation: Docker only publishes the port on that address.
+
+- Use a loopback, Docker-bridge or private/VPN IP for the web allocation instead of
+  the node's public IP. The game allocation stays public.
+- Something internal then has to reach that address. With the BlueNet extension
+  (1.0.45 or newer) set the node setting `fs25_dashboard_proxy` to `true`; the panel
+  serves the dashboard itself, signs in with `WEB_USERNAME`/`WEB_PASSWORD` and the web
+  port never needs to be public. See the extension's README.
+- Without BlueNet, use your own reverse proxy or VPN in front of the web allocation.
+  The interface is plain HTTP, so do not expose it directly.
+
 ## Product key
 
 Set `FS25_PRODUCT_KEY` under Startup, or leave it empty. You need a separate
