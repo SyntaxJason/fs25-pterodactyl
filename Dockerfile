@@ -31,6 +31,8 @@ RUN curl -fsSL https://archive.archlinux.org/packages/7/7zip/7zip-25.01-1-x86_64
  && rm /tmp/7zip.pkg.tar.zst \
  && for program in wine wineserver wineboot Xvfb xdotool 7z python; do command -v "$program"; done
 RUN useradd --uid 988 --gid 988 --home-dir /home/container --create-home --shell /bin/bash container
+# Der Entrypoint passt passwd/group an die vom Host vergebene UID an.
+RUN chmod 666 /etc/passwd /etc/group
 COPY runtime/ /opt/fs25-ptero/
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh && python -m compileall -q /opt/fs25-ptero
