@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+build.log
+setup-local.php
+*.zip
+*.pteroext
+.env
