@@ -65,7 +65,7 @@ egg = dict(
     meta=dict(version='PTDL_v2', update_url=None),
     exported_at='2026-10-23T00:00:00+02:00',
     name='Farming Simulator 25 (Wine, ohne VNC)',
-    author='local@example.com',
+    author='eggs@bluenet-hosting.com',
     description='FS25 auf Wine mit automatischem GIANTS-Download, Silent-Installation und Dialog-Aktivierung ohne VNC. Separate GIANTS-Lizenz erforderlich. 8 GB RAM und 100 GB Disk empfohlen. Primaere Allocation = Spielport, zweite Allocation = WEB_PORT/TCP. Erstaktivierung versionsabhaengig.',
     features=['pid_limit'], docker_images={'FS25 Arch Wine': 'ghcr.io/syntaxjason/fs25-pterodactyl:latest'},
     file_denylist=[], startup='exec python /opt/fs25-ptero/runtime.py',
